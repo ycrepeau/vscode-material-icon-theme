@@ -1,6 +1,7 @@
 .vscode/**
+.github/**
 .vscode-test/**
-out/test/**
+out/**
 test/**
 src/**
 scripts/**
@@ -8,11 +9,12 @@ scripts/**
 .gitignore
 .travis.yml
 appveyor.yml
-.bithoundrc
 tsconfig.json
 tslint.json
 images/**
 vsc-extension-quickstart.md
 logo.svg
+node_modules
 package-lock.json
 yarn.lock
+webpack.config.js

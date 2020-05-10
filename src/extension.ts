@@ -1,28 +1,35 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as i18n from "./i18n";
 import * as commands from './commands';
-import { showStartMessages } from "./messages/start";
-import { configChangeDetection, watchForConfigChanges } from "./helpers/change-detection";
-import { checkThemeStatus } from "./helpers/versioning";
+import { detectConfigChanges } from './helpers/changeDetection';
+import { checkThemeStatus } from './helpers/versioning';
+import * as i18n from './i18n';
+import { showStartMessages } from './messages/start';
 
-/** If the icons theme gets activated by starting the editor this function will be executed. */
-export const activate = (context: vscode.ExtensionContext) => {
-    // show start messages after the translations are initialized
-    i18n.initTranslations().then(() => {
-        showStartMessages(checkThemeStatus(context.globalState));
-    }).catch(err => console.log(err));
+/**
+ * This method is called when the extension is activated.
+ * It initializes the core functionality of the extension.
+ */
+export const activate = async (context: vscode.ExtensionContext) => {
+    try {
+        await i18n.initTranslations();
+        const status = await checkThemeStatus(context.globalState);
+        showStartMessages(status);
 
-    // load the commands
-    context.subscriptions.push(
-        ...commands.commands
-    );
+        // Subscribe to the extension commands
+        context.subscriptions.push(...commands.registered);
 
-    configChangeDetection();
-    watchForConfigChanges();
+        // Initially trigger the config change detection
+        detectConfigChanges();
+
+        // Observe changes in the config
+        vscode.workspace.onDidChangeConfiguration(detectConfigChanges);
+    } catch (error) {
+        console.error(error);
+    }
 };
 
-/** This method is called when your extension is deactivated */
+/** This method is called when the extension is deactivated */
 export const deactivate = () => {
 };

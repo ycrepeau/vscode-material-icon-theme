@@ -1,13 +1,18 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+import { iconJsonName } from '../icons/index';
+import { IconConfiguration } from '../models/index';
 import * as reloadMessages from './../messages/reload';
-import { AdvancedWorkspaceConfiguration } from "../models/AdvancedWorkspaceConfiguration.interface";
-import { IconConfiguration } from "../models/IconConfiguration.interface";
 
 /** Get configuration of vs code. */
 export const getConfig = (section?: string) => {
-    return vscode.workspace.getConfiguration(section) as AdvancedWorkspaceConfiguration;
+    return vscode.workspace.getConfiguration(section);
+};
+
+/** Get list of configuration entries of package.json */
+export const getConfigProperties = (): { [config: string]: any } => {
+    return vscode.extensions.getExtension('PKief.material-icon-theme').packageJSON.contributes.configuration.properties;
 };
 
 /** Update configuration of vs code. */
@@ -17,11 +22,6 @@ export const setConfig = (section: string, value: any, global: boolean = false) 
 
 export const getThemeConfig = (section: string) => {
     return getConfig('material-icon-theme').inspect(section);
-};
-
-/** Is a folder opened? */
-export const hasWorkspace = (): boolean => {
-    return vscode.workspace.rootPath !== undefined;
 };
 
 /** Set the config of the theme. */
@@ -46,43 +46,36 @@ export const isThemeNotVisible = (): boolean => {
 };
 
 /** Return the path of the extension in the file system. */
-export const getExtensionPath = () => path.join(__dirname, '..', '..', '..');
+export const getExtensionPath = () => vscode.extensions.getExtension('PKief.material-icon-theme').extensionPath;
 
 /** Get the configuration of the icons as JSON Object */
-export const getMaterialIconsJSON = (): Promise<IconConfiguration> => {
-    return new Promise((resolve, reject) => {
-        const iconJSONPath = path.join(getExtensionPath(), 'out', 'src', 'material-icons.json');
-        fs.readFile(iconJSONPath, 'utf8', (err, data) => {
-            if (data) {
-                resolve(JSON.parse(data));
-            } else {
-                reject(err);
-            }
-        });
-    });
-};
+export const getMaterialIconsJSON = (): IconConfiguration => {
+    const iconJSONPath = path.join(getExtensionPath(), 'dist', iconJsonName);
 
-/** Method for removing file extensions by extension name */
-export const removeIconExtensions = (config: IconConfiguration, fileExtensionName: string) => {
-    const fileExtensions = config.fileExtensions;
-    // iterate each key of the extensions object
-    for (let propName in fileExtensions) {
-        // if the extension includes the given name the key will be deleted
-        if (fileExtensions[propName].includes(fileExtensionName)) {
-            delete fileExtensions[propName];
-        }
+    try {
+        const data = fs.readFileSync(iconJSONPath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error(error);
+        return undefined;
     }
-    // return the new config object
-    return { ...config, fileExtensions };
 };
 
 /** Reload vs code window */
 export const promptToReload = () => {
-    reloadMessages.showConfirmToReloadMessage().then(result => {
+    return reloadMessages.showConfirmToReloadMessage().then(result => {
         if (result) reloadWindow();
     });
 };
 
 const reloadWindow = () => {
     return vscode.commands.executeCommand('workbench.action.reloadWindow');
+};
+
+/** Capitalize the first letter of a string */
+export const capitalizeFirstLetter = (name: string): string => name.charAt(0).toUpperCase() + name.slice(1);
+
+/** TitleCase all words in a string */
+export const toTitleCase = (str) => {
+    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
