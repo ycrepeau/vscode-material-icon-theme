@@ -278,7 +278,8 @@ export const fileIcons: FileIcons = {
     { name: 'zig', fileExtensions: ['zig'] },
     { name: 'exe', fileExtensions: ['exe', 'msi'] },
     { name: 'hex', fileExtensions: ['dat', 'bin', 'hex'] },
-    { name: 'java', fileExtensions: ['java', 'jar', 'jsp'] },
+    { name: 'java', fileExtensions: ['java', 'jsp'] },
+    { name: 'jar', fileExtensions: ['jar'] },
     { name: 'javaclass', fileExtensions: ['class'] },
     { name: 'c', fileExtensions: ['c', 'm', 'i', 'mi'] },
     { name: 'h', fileExtensions: ['h'] },
@@ -1461,6 +1462,7 @@ export const fileIcons: FileIcons = {
     { name: 'chess', fileExtensions: ['pgn', 'fen'], light: true },
     { name: 'gemini', fileExtensions: ['gmi', 'gemini'] },
     { name: 'sentry', fileNames: ['.sentryclirc'] },
+    { name: 'robots', fileNames: [ 'robots.txt' ] },
     {
       name: 'tsconfig',
       fileNames: ['tsconfig.json'],
